@@ -6,6 +6,7 @@ import config from './app/config'
 import { globalErrorHandler } from './app/middleware/globalErrorHandler'
 import { notFound } from './app/middleware/notFound'
 import { AuthRoutes } from './app/module/auth/auth.route'
+import z, { email } from 'zod'
 
 const app: Application = express()
 
@@ -23,7 +24,32 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 
-app.use('/api/v1/auth', AuthRoutes)
+app.use('/api/v1/auth', AuthRoutes);
+app.use('/zod', async (req: Request, res: Response, next) => {
+    try{
+            const UserZodSchema = z.object({
+            name: z.string().min(50),
+            age: z.number().optional(),
+            email: z.email(),
+            isVerified: z.boolean().optional(),
+            books: z.array(z.string()).optional()
+        })
+
+        const payload = req.body;
+
+        const result = UserZodSchema.parse(payload)
+
+        res.status(httpStatus.OK).json({
+            success: true,
+            message: 'Welcome to PH Healthcare System Backend',
+            data:result
+        });
+        console.log(result)
+    }catch(error){
+        console.log(error)
+        next(error)
+    }
+})
 
 // Basic route
 app.get('/', async (req: Request, res: Response) => {
