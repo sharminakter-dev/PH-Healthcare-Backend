@@ -55,7 +55,7 @@ const forgotPasswordZodSchema = z.object({
 })
 
 const resetPasswordZodSchema =  z.object({
-	password: z.string("Password is required").min(1, "Password is required"),
+	email: z.string("Password is required"),
 	newPassword:  z.string().
 				min(8, { message: "Password must be at least 8 character longs" })
 				.max(20, { message: "Password cannot exceed 20 characters" })
