@@ -6,7 +6,8 @@ import config from './app/config'
 import { globalErrorHandler } from './app/middleware/globalErrorHandler'
 import { notFound } from './app/middleware/notFound'
 import { AuthRoutes } from './app/module/auth/auth.route'
-import z, { email } from 'zod'
+import { redisClient } from './app/lib/redis'
+import crypto from 'crypto'
 
 const app: Application = express()
 
@@ -25,26 +26,26 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/api/v1/auth', AuthRoutes);
-app.use('/zod', async (req: Request, res: Response, next) => {
+
+app.get('/redis', async (req: Request, res: Response, next) => {
+
     try{
-            const UserZodSchema = z.object({
-            name: z.string().min(50),
-            age: z.number().optional(),
-            email: z.email(),
-            isVerified: z.boolean().optional(),
-            books: z.array(z.string()).optional()
+        
+        const otp = crypto .randomInt(100000,1000000);
+
+        await redisClient.set("forget-password-otp:patient1@gmail.com", "123456",{
+            expiration: {
+                type: "EX",
+                value: 60
+            }
         })
-
-        const payload = req.body;
-
-        const result = UserZodSchema.parse(payload)
 
         res.status(httpStatus.OK).json({
             success: true,
             message: 'Welcome to PH Healthcare System Backend',
-            data:result
+            data: otp
         });
-        console.log(result)
+        console.log()
     }catch(error){
         console.log(error)
         next(error)
