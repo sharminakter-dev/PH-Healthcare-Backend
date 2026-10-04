@@ -27,7 +27,20 @@ const registerPatient = catchAsync(async (req: Request, res: Response) => {
 
 	const payload = req.body;
 
-	const { user, patient, accessToken, refreshToken, } = await AuthService.registerPatient(payload);
+
+	sendResponse(res, {
+		statusCode: httpStatus.CREATED,
+		success: true,
+		message: "Verification OTP Sent",
+		data: null,
+	});
+});
+
+const verifyPatientEmail = catchAsync(async (req: Request, res: Response) => {
+
+	const payload = req.body;
+
+	const { user, patient, accessToken, refreshToken, } = await AuthService.verifyPatientEmail(payload);
 
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
@@ -190,8 +203,8 @@ const resetPassword =  catchAsync(async (req: Request, res: Response) =>{
 })
 
 export const AuthController = {
-	
 	registerPatient,
+	verifyPatientEmail,
 	loginUser,
 	getMe,
 	refreshToken,
